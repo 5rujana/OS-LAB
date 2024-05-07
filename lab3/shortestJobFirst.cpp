@@ -1,79 +1,90 @@
-#include<bits/stdc++.h>
+#include<iostream>
+#include<algorithm>
+#include<vector>
 using namespace std;
 
-struct Process {
-    int processId;
-    int burstTime;
-    int waitingTime;
-    int turnaroundTime;
+// Structure to represent a process
+struct Process
+{
+    int id;                 // Process ID
+    int arrival_time;       // Arrival time of the process
+    int burst_time;         // Burst time of the process
+    int remaining_time;     // Remaining time to complete the process
+    int completion_time;    // Time at which the process completes execution
+    int turnaround_time;    // Turnaround time of the process
+    int waiting_time;       // Waiting time of the process
+    bool completed;         // Flag to indicate if the process has completed
 };
 
-int main() {
-    int n, totalWaitingTime = 0, totalTurnaroundTime = 0;
+int main()
+{
+    int n, total_time = 0, shortest = 0;
+    float avg_waiting_time = 0, avg_turnaround_time = 0;
 
-    cout<<"Enter number of processes: ";
-    cin>>n;
+    // Get the number of processes from the user
+    cout << "Enter the number of processes: ";
+    cin >> n;
 
-    // Declare an array of processes
-    struct Process processes[n];
+    // Create a vector to store the processes
+    vector<Process> processes(n);
 
-    cout<<"Enter Burst Time:"<<endl;
-
-    // User Input Burst Time and alloting Process Id.
-    for (int i = 0; i < n; i++) {
-        cout<<"P"<<i+1<<" : ";
-        cin>>processes[i].burstTime;
-        processes[i].processId = i + 1;
+    // Input arrival time and burst time for each process
+    for (int i = 0; i < n; i++)
+    {
+        cout << "Enter arrival time and burst time for process " << i + 1 << ": ";
+        cin >> processes[i].arrival_time >> processes[i].burst_time;
+        processes[i].id = i + 1;
+        processes[i].remaining_time = processes[i].burst_time;
+        processes[i].completed = false;
+        total_time += processes[i].burst_time;
     }
 
+    int current_time = 0, completed_processes = 0;
 
-    // Sorting processes according to their Burst Time using Selection Sort
-    for (int i = 0; i < n - 1; i++) {
-        int minIndex = i;
-        for (int j = i + 1; j < n; j++) {
-            if (processes[j].burstTime < processes[minIndex].burstTime) {
-                minIndex = j;
+    // Process scheduling loop
+    while (completed_processes < n)
+    {
+        int min_remaining_time = total_time + 1;
+
+        // Find the process with the shortest remaining time among the arrived processes
+        for (int i = 0; i < n; i++)
+        {
+            if (processes[i].arrival_time <= current_time && processes[i].remaining_time < min_remaining_time && !processes[i].completed)
+            {
+                shortest = i;
+                min_remaining_time = processes[i].remaining_time;
             }
         }
 
-        // Swap the processes
-        struct Process temp = processes[i];
-        processes[i] = processes[minIndex];
-        processes[minIndex] = temp;
-    }
+        // Update completion time and remaining time for the selected process
+        if (processes[shortest].remaining_time == processes[shortest].burst_time)
+            processes[shortest].completion_time = current_time;
 
-    processes[0].waitingTime = 0;
+        processes[shortest].remaining_time--;
+        current_time++;
 
-    // Calculation of Waiting Times
-    for (int i = 1; i < n; i++) {
-        processes[i].waitingTime = 0;
-        for (int j = 0; j < i; j++) {
-            processes[i].waitingTime += processes[j].burstTime;
+        // If the process completes execution, calculate its turnaround time and waiting time
+        if (processes[shortest].remaining_time == 0)
+        {
+            processes[shortest].completed = true;
+            processes[shortest].turnaround_time = current_time - processes[shortest].arrival_time;
+            processes[shortest].waiting_time = processes[shortest].turnaround_time - processes[shortest].burst_time;
+            avg_waiting_time += processes[shortest].waiting_time;
+            avg_turnaround_time += processes[shortest].turnaround_time;
+            completed_processes++;
         }
-        totalWaitingTime += processes[i].waitingTime;
     }
 
-    printf("P\t\tBurstTime\tWaitingTime\tTurnAroundTime\n");
+    // Calculate average waiting time and average turnaround time
+    avg_waiting_time /= n;
+    avg_turnaround_time /= n;
 
-    // Calculation of Turn Around Time 
-    for (int i = 0; i < n; i++) {
-        processes[i].turnaroundTime = processes[i].burstTime + processes[i].waitingTime;
-        totalTurnaroundTime += processes[i].turnaroundTime;
-
+    // Display process details
+    cout << "Process\tArrival Time\tBurst Time\tCompletion Time\tTurnaround Time\tWaiting Time\n";
+    for (int i = 0; i < n; i++)
+    {
+        cout << processes[i].id << "\t" << processes[i].arrival_time << "\t\t" << processes[i].burst_time << "\t\t" << processes[i].completion_time << "\t\t" << processes[i].turnaround_time << "\t\t" << processes[i].waiting_time << endl;
     }
-
-    // printing the data.
-    cout<<"P\tBurstTime\tPriority\tWaitingTime\tTurnAroundTime\n";
-    for(int i = 0;i<n;i++){
-        cout<<"P"<<processes[i].processId<<"\t\t"<<processes[i].burstTime<<"\t\t"<<processes[i].waitingTime<<"\t\t"<<processes[i].turnaroundTime<<endl;
-
-    }
-
-    float avgWaitingTime = (float)totalWaitingTime / n;
-    float avgTurnaroundTime = (float)totalTurnaroundTime / n;
-
-    cout<<"Average Waiting Time= " <<avgWaitingTime<<endl;
-    cout<<"Average Turnaround Time= "<< avgTurnaroundTime<<endl;
 
     return 0;
 }
