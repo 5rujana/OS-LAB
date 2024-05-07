@@ -59,7 +59,7 @@ int main() {
     // printing the data.
     cout<<"P\tBurstTime\tPriority\tWaitingTime\tTurnAroundTime\n";
     for(int i = 0;i<n;i++){
-        cout<<"P"<<processes[i].processId<<"/t"<< processes[i].burstTime<<"\t\t"<<processes[i].priority<<"\t\t"<<processes[i].waitingTime<<"\t\t"<<processes[i].turnaroundTime<<endl;
+        cout<<"P"<<processes[i].processId<<"\t"<< processes[i].burstTime<<"\t\t"<<processes[i].priority<<"\t\t"<<processes[i].waitingTime<<"\t\t"<<processes[i].turnaroundTime<<endl;
     
     }
 
